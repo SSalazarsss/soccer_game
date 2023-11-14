@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Game</title>
+    <style>
+canvas#myCanvas {
+  background: linear-gradient(
+      217deg,
+      rgba(255, 0, 0, 0.8),
+      rgba(255, 0, 0, 0) 70.71%
+    ),
+    linear-gradient(127deg, rgba(7, 214, 255), rgba(9, 50, 255) 70.71%),
+    linear-gradient(336deg, rgba(0, 0, 255, 0.8), rgba(0, 0, 255, 0) 70.71%);
+  border: 2px solid black;
+}
+
+    </style>
+</head>
+<body>
+<canvas id="myCanvas" width="400" height="200">Your browser does NOT support javascript.</canvas>
+<button onclick="playGame()">Play</button>
+    <script>
+const canvas = document.getElementById("myCanvas");
+
+let ctx = canvas.getContext("2d");
+let score = 0;
+let falls = 0;
+
+const CW = canvas.width;
+const CH = canvas.height;
+const halfCW = CW / 2;
+const halfCH = CH / 2;
+
+let ballIconSrc =
+  "https://static.vecteezy.com/system/resources/previews/013/490/724/original/colored-round-soap-bubbles-png.png";
+let ballImage = new Image();
+ballImage.crossOrigin = "anonymous";
+ballImage.src = ballIconSrc;
+
+let netIconSrc =
+  "https://png.pngtree.com/png-vector/20220719/ourmid/pngtree-color-icon---football-goal-post-game-icon-penalty-vector-png-image_37947066.png";
+
+let ballW = 20;
+let ballH = 20;
+
+let ballX = CW / 2 - ballW / 2;
+let ballY = CH / 2 - ballH / 2;
+
+let ballSpeedX = 2;
+let ballSpeedY = 2;
+
+let bounces = 0;
+
+function drawRect(x, y, w, h) {
+  ctx.fillRect(x, y, w, h);
+}
+
+function drawBall() {
+  ctx.drawImage(ballImage, ballX, ballY, ballW, ballH);
+}
+
+drawBall();
+
+let paddleW = 100;
+let paddleH = 20;
+let paddleX = CW / 2 - paddleW / 2;
+let paddleY = CH - paddleH - 20;
+function drawPaddle() {
+  drawRect(paddleX, paddleY, paddleW, paddleH);
+}
+drawPaddle();
+
+function drawHUD() {
+  ctx.font = "12px Arial";
+  ctx.fillText("hits: " + bounces + " misses: " + falls, 50, 50);
+}
+drawHUD();
+
+let netW = 120;
+let netH = 30;
+let netX = CW / 2 - netW / 2;
+let netY = CH / 2 - 100;
+
+function drawNet() {
+  drawRect(netX, netY, netW, netH);
+}
+drawNet();
+
+function drawHUD() {
+  ctx.font = "12px Arial";
+  ctx.fillText("Bounces: " + bounces + " Falls: " + falls, 50, 50);
+  //(string, x, y)
+}
+drawHUD();
+
+function paddleCollision() {
+  if (
+    ballX < paddleX + paddleW &&
+    ballX + ballW > paddleX &&
+    ballY < paddleY + paddleH &&
+    ballY + ballH > paddleY
+  ) {
+    return true;
+  }
+}
+
+let moveRight = false;
+let moveLeft = false;
+
+document.addEventListener("keydown", function (event) {
+  if (event.key === "ArrowRight") {
+    moveRight = true;
+  }
+  if (event.key === "ArrowLeft") {
+    moveLeft = true;
+  }
+});
+document.addEventListener("keyup", function (event) {
+  if (event.key === "ArrowRight") {
+    moveRight = false;
+  }
+  if (event.key === "ArrowLeft") {
+    moveLeft = false;
+  }
+});
+
+function playGame() {
+  ctx.clearRect(0, 0, CW, CH);
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+
+  if (ballX + ballW > CW || ballX < 0) {
+    ballSpeedX *= -1;
+  }
+  if (ballY < 0) {
+    ballSpeedY *= -1;
+  }
+  if (ballY + ballH > CH) {
+    falls++;
+    console.log("fail. Number of falls: " + falls);
+
+    ballY = CH / 2;
+    ballX = CW / 2;
+  }
+
+  if (paddleCollision()) {
+    console.log("collision!");
+    bounces++;
+    console.log(bounces);
+    ballSpeedX *= -1;
+    ballSpeedY *= -1;
+  }
+
+  if (moveRight && paddleX + paddleW < CW) {
+    paddleX += 10;
+  }
+  if (moveLeft && paddleX > 0) {
+    paddleX -= 10;
+  }
+  drawBall();
+  drawPaddle();
+  drawHUD();
+  requestAnimationFrame(playGame);
+}
+
+// playGame();
+
+    </script>
+</body>
+</html>
